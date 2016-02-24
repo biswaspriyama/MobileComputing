@@ -110,6 +110,22 @@
             android:onClick="stopButtonClicked"
             android:background="@drawable/stop_button"
             android:layout_marginLeft="5dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/down_btn"
+            android:onClick="downloadButtonClicked"
+            android:background="@drawable/download_button"
+            android:layout_marginLeft="5dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/up_btn"
+            android:onClick="uploadButtonClicked"
+            android:background="@drawable/upload_button"
+            android:layout_marginLeft="5dp"/>
     </LinearLayout>
 
 

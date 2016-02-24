@@ -4,6 +4,9 @@
     <string name="start_btn">Start</string>
     <string name="stop_btn">Stop</string>
 
+    <string name="down_btn">Download</string>
+    <string name="up_btn">Upload</string>
+
     <string name="patient_id_label">Patient ID:</string>
     <string name="age_label">Age:</string>
     <string name="patient_name_label">Patient Name:</string>

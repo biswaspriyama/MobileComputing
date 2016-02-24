@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
             startAnimation();
             showMessage();
         }
-
     }
 
     public void stopButtonClicked(View view) {
@@ -112,8 +111,24 @@ public class MainActivity extends AppCompatActivity {
         float[] values = {0};
         this.mGraphView.setValues(values);
         this.mGraphView.invalidate();
+    }
+
+    /**
+     * Initiate the download of database from the server.
+     * @param view
+     */
+    public void downloadButtonClicked(View view) {
 
     }
+
+    /**
+     * Initiate upload of database to the server.
+     * @param view
+     */
+    public void uploadButtonClicked(View view) {
+
+    }
+
     /**
      * @author Prameet Kohli
      */
