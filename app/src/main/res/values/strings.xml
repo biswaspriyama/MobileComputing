@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">CSE535Assgn1</string>
+
+    <string name="start_btn">Start</string>
+    <string name="stop_btn">Stop</string>
+
+    <string name="patient_id_label">Patient ID:</string>
+    <string name="age_label">Age:</string>
+    <string name="patient_name_label">Patient Name:</string>
+    <string name="sex_label">Sex:</string>
+
+    <string name="male_label">Male</string>
+    <string name="female_label">Female</string>
+
+</resources>
