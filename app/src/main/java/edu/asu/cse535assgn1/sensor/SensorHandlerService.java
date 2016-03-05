@@ -30,7 +30,6 @@ public class SensorHandlerService extends Service implements SensorEventListener
     int k=0;
     Bundle b;
 
-
     @Override
     public void onCreate(){
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
@@ -56,7 +55,6 @@ public class SensorHandlerService extends Service implements SensorEventListener
     //================================================================================
     //              Data manipulation methods
     //================================================================================
-
 
     public void insertData(float x, float y, float z){
         try {
