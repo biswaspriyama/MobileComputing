@@ -14,6 +14,8 @@ import java.util.List;
 
 import edu.asu.cse535assgn1.lib.GraphView;
 import edu.asu.cse535assgn1.models.Patient;
+import edu.asu.cse535assgn1.webservices.DownloadWebservice;
+import edu.asu.cse535assgn1.webservices.UploadWebservice;
 
 /**
  * @author Jithin Roy
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = new Handler();
     private List<Float> mCurrentGraphValues = new ArrayList<>() ;
 
+    private UploadWebservice uploadService;
+    private DownloadWebservice downloaddService;
 
     private float[] values = {10, 50, 60, 80, 60, 48, 0, 6, 20, 4, 2, 0, 6, 7, 8, 9, 0, 4, 2, 30, 5, 64, 89, 8, 0, 6, 5, 8, 0, 45, 0, 6, 4, 54, 3,};
 
