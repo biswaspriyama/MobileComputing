@@ -12,6 +12,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.asu.cse535assgn1.database.DatabaseManager;
 import edu.asu.cse535assgn1.lib.GraphView;
 import edu.asu.cse535assgn1.models.Patient;
 import edu.asu.cse535assgn1.webservices.DownloadWebservice;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         this.mPatientNameTextView = (TextView)findViewById(R.id.patientName);
         this.mPatientAgeTextView = (TextView)findViewById(R.id.patientAge);
         this.mSexRadioGroup = (RadioGroup)findViewById(R.id.radio_group);
+
+        DatabaseManager.sharedInstance(getApplicationContext()).databasePath();
     }
 
 

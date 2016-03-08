@@ -5,7 +5,7 @@ package edu.asu.cse535assgn1.models;
  */
 public class Accelerometer {
 
-    private String timestamp;
+    private float timestamp;
     private float x;
     private float y;
     private float z;
@@ -34,11 +34,11 @@ public class Accelerometer {
         this.z = z;
     }
 
-    public String getTimestamp() {
+    public float getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(float timestamp) {
         this.timestamp = timestamp;
     }
 }

@@ -1,7 +1,13 @@
 package edu.asu.cse535assgn1.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.asu.cse535assgn1.models.Accelerometer;
@@ -14,6 +20,10 @@ import edu.asu.cse535assgn1.models.Accelerometer;
 public class DatabaseManager {
 
     private static DatabaseManager instance;
+    private DBHelper mHelper;
+    private Context context;
+
+    private String TAG = "DatabaseManager";
 
     private DatabaseManager() {
         // Added to avoid multiple instances
@@ -23,9 +33,16 @@ public class DatabaseManager {
     public static DatabaseManager sharedInstance(Context context) {
         if(instance == null) {
             instance = new DatabaseManager();
+            instance.initializeDB(context);
         }
         return instance;
     }
+
+    private void initializeDB(Context context) {
+        this.context = context;
+        mHelper = new DBHelper(context);
+    }
+
 
     //==============================================================================
     //                       Public methods
@@ -38,6 +55,24 @@ public class DatabaseManager {
      */
     public void saveAccelerometerList(List<Accelerometer> list) {
 
+
+        SQLiteDatabase db = openDatabase();
+
+        for (Accelerometer acc: list) {
+
+            ContentValues values = new ContentValues();
+            values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP, acc.getTimestamp());
+            values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_X_VALUE, acc.getX());
+            values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Y_VALUE, acc.getY());
+            values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE, acc.getZ());
+
+            long newRowId;
+            newRowId = db.insert(AccelerometerContract.AccelerometerEntry.TABLE_NAME,
+                    null,
+                    values);
+        }
+        db.close();
+
     }
 
     /**
@@ -47,7 +82,53 @@ public class DatabaseManager {
      * @return List of accelerometer values.
      */
     public List<Accelerometer> fetchRecentAccelerometerData(int count) {
-        return null;
+        SQLiteDatabase db = openDatabase();
+
+        String[] projection = {
+                AccelerometerContract.AccelerometerEntry._ID,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_X_VALUE,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Y_VALUE,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE,
+
+        };
+        String limit = Integer.toString(count);
+        Cursor cursor = db.query(
+                AccelerometerContract.AccelerometerEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP,
+                limit
+        );
+
+        List<Accelerometer> result = new ArrayList<>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Accelerometer acc = new Accelerometer();
+
+            float timestamp = cursor.getFloat(
+                    cursor.getColumnIndexOrThrow(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP)
+            );
+            float x = cursor.getFloat(
+                    cursor.getColumnIndexOrThrow(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_X_VALUE)
+            );
+            float y = cursor.getFloat(
+                    cursor.getColumnIndexOrThrow(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Y_VALUE)
+            );
+            float z = cursor.getFloat(
+                    cursor.getColumnIndexOrThrow(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE)
+            );
+            acc.setTimestamp(timestamp);
+            acc.setX(x);
+            acc.setY(y);
+            acc.setZ(z);
+            result.add(acc);
+            cursor.moveToNext();
+        }
+        return result;
     }
 
     /**
@@ -56,6 +137,8 @@ public class DatabaseManager {
      * @return Absolute path of database location.
      */
     public String databasePath() {
+        File file = context.getDatabasePath(DBHelper.DATABASE_NAME);
+        Log.i(TAG, "DB path = "+file.getAbsolutePath());
         return null;
     }
 
@@ -63,15 +146,12 @@ public class DatabaseManager {
     //                          Internals
     //==============================================================================
 
-    private void createDatabase() {
-
+    private SQLiteDatabase openDatabase() {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        return db;
     }
 
-    private void openDatabase() {
-
-    }
-
-    private void closeDatabase() {
-
+    private void closeDatabase(SQLiteDatabase db) {
+        db.close();
     }
 }
