@@ -128,6 +128,7 @@ public class DatabaseManager {
             result.add(acc);
             cursor.moveToNext();
         }
+        db.close();
         return result;
     }
 
