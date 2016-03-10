@@ -25,22 +25,24 @@ public class DatabaseManager {
 
     private String TAG = "DatabaseManager";
 
+    private String accelorometerTableName = "";
+
     private DatabaseManager() {
         // Added to avoid multiple instances
         // This is a singleton
     }
 
-    public static DatabaseManager sharedInstance(Context context) {
+    public static DatabaseManager sharedInstance() {
         if(instance == null) {
             instance = new DatabaseManager();
-            instance.initializeDB(context);
+
         }
         return instance;
     }
 
-    private void initializeDB(Context context) {
+    private void initializeDB(String tableName, Context context) {
         this.context = context;
-        mHelper = new DBHelper(context);
+        mHelper = new DBHelper(context, tableName);
     }
 
 
@@ -48,6 +50,10 @@ public class DatabaseManager {
     //                       Public methods
     //==============================================================================
 
+
+    public boolean isDBAvialable() {
+        return (mHelper != null);
+    }
     /**
      * Saves the list of accelerometer data to database.
      *
@@ -57,7 +63,8 @@ public class DatabaseManager {
 
 
         SQLiteDatabase db = openDatabase();
-
+        if (db != null)
+            Log.i(TAG, "Database file found");
         for (Accelerometer acc: list) {
 
             ContentValues values = new ContentValues();
@@ -67,7 +74,7 @@ public class DatabaseManager {
             values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE, acc.getZ());
 
             long newRowId;
-            newRowId = db.insert(AccelerometerContract.AccelerometerEntry.TABLE_NAME,
+            newRowId = db.insert("AccelerometerTable",
                     null,
                     values);
         }
@@ -94,7 +101,7 @@ public class DatabaseManager {
         };
         String limit = Integer.toString(count);
         Cursor cursor = db.query(
-                AccelerometerContract.AccelerometerEntry.TABLE_NAME,
+                "AccelerometerTable",
                 projection,
                 null,
                 null,
@@ -138,21 +145,35 @@ public class DatabaseManager {
      * @return Absolute path of database location.
      */
     public String databasePath() {
-        File file = context.getDatabasePath(DBHelper.DATABASE_NAME);
-        Log.i(TAG, "DB path = "+file.getAbsolutePath());
-        return null;
+        File file = context.getDatabasePath(accelorometerTableName);
+        Log.i(TAG, "DB path = " + file.getAbsolutePath());
+        return file.getAbsolutePath();
     }
+
+    public void createTable(String tableName, Context context) {
+        mHelper = null;
+        accelorometerTableName = tableName;
+        initializeDB(tableName, context);
+    }
+
+
 
     //==============================================================================
     //                          Internals
     //==============================================================================
 
     private SQLiteDatabase openDatabase() {
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-        return db;
+        if (mHelper != null) {
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            return db;
+        }
+        return null;
+
+
     }
 
     private void closeDatabase(SQLiteDatabase db) {
-        db.close();
+        if (db != null) db.close();
     }
+
 }

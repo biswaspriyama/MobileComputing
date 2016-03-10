@@ -4,6 +4,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
+
     defaultConfig {
         applicationId "edu.asu.cse535assgn1"
         minSdkVersion 16
@@ -23,4 +24,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
+
+    compile 'com.h2database:h2:1.4.191'
+    compile 'com.jjoe64:graphview:4.0.1'
 }
