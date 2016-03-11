@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -103,7 +104,7 @@ public class SensorHandlerService extends Service implements SensorEventListener
             accelerometerList.add(acc);
 
 
-            if(index >= 127){
+            if(index >= 10){
                 index = 0;
                 accelManager.unregisterListener(this);
                 insertData(accelerometerList);
