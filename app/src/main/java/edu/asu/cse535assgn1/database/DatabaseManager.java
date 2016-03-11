@@ -91,7 +91,26 @@ public class DatabaseManager {
      */
     public List<Accelerometer> fetchRecentAccelerometerData(int count) {
         SQLiteDatabase db = openDatabase();
+        List<Accelerometer> result = fetchRecentAccelerometerValuesFromDB(db, count);
+        db.close();
+        return result;
+    }
 
+    /**
+     * Returns a list of recent 'count' of accelerometer data from the given database.
+     *
+     * @param count Number of records to be fetched.
+     * @return List of accelerometer values.
+     */
+    public List<Accelerometer> fetchRecentAccelerometerData(String dbPath, int count) {
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.CREATE_IF_NECESSARY);
+        List<Accelerometer> result = fetchRecentAccelerometerValuesFromDB(db, count);
+        db.close();
+        return result;
+    }
+
+    private List<Accelerometer> fetchRecentAccelerometerValuesFromDB(SQLiteDatabase db, int count) {
+        String limit = Integer.toString(count);
         String[] projection = {
                 AccelerometerContract.AccelerometerEntry._ID,
                 AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP,
@@ -100,7 +119,6 @@ public class DatabaseManager {
                 AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE,
 
         };
-        String limit = Integer.toString(count);
         Cursor cursor = db.query(
                 "AccelerometerTable",
                 projection,
@@ -137,9 +155,9 @@ public class DatabaseManager {
             result.add(acc);
 
         }
+
         cursor.close();
         db.close();
-
         return result;
     }
 
@@ -165,8 +183,6 @@ public class DatabaseManager {
         accelorometerTableName = tableName;
         initializeDB(tableName, context);
     }
-
-
 
     //==============================================================================
     //                          Internals

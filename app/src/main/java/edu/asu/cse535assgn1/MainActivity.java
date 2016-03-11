@@ -13,6 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 /**
  * @author Jithin Roy
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DownloadWebservice.DownloadWebserviceInterface {
 
     private GraphView mGraphView;
     private GridLabelRenderer graphProperties;
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void stopButtonClicked(View view) {
 
-        //this.isTableMade = false;
+        this.isTableMade = false;
         mIndex = 0;
         mGraphIndex = 0;
         mSeriesX.resetData(new DataPoint[]{new DataPoint(0, 0)});
@@ -204,7 +205,9 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void downloadButtonClicked(View view) {
-
+        downloadService = new DownloadWebservice( DatabaseManager.sharedInstance().databaseName(),
+                DatabaseManager.sharedInstance().databaseAbsolutePath(), this);
+        downloadService.startDownload();
     }
 
     /**
@@ -291,6 +294,20 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, "Update Called. Size: " + accelerometerList.size());
         //this.mGraphView.invalidate();
     }
+
+    public void didComplete(String filePath) {
+        Log.i(TAG, "Download completed - " + filePath);
+        List<Accelerometer> acc = DatabaseManager.sharedInstance().fetchRecentAccelerometerData(filePath, 10);
+        Log.i(TAG, "Download completed size - " + acc.size());
+
+        Toast.makeText(this,"Downloaded the db file, showing latest 10...", Toast.LENGTH_LONG).show();
+    }
+
+    public void didFail(String filePath) {
+        Log.i(TAG, "Download failed - " + filePath);
+        Toast.makeText(this,"Download failed...", Toast.LENGTH_LONG).show();
+    }
+
 
 
 }

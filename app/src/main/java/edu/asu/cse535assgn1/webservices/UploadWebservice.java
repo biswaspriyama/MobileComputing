@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,7 +98,11 @@ public class UploadWebservice {
 
             try {
                 URL url = new URL("https://impact.asu.edu/Appenstance/UploadToServerGPS.php");
+
                 String filePathName = params[0];
+                String fileUploadPathName = params[0] + "_upload";
+                copy(new File(filePathName), new File(fileUploadPathName));
+
                 String fileName = DatabaseManager.sharedInstance().databaseName();
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.setUseCaches(false);
@@ -121,7 +126,7 @@ public class UploadWebservice {
                 Log.i(TAG, "DB file " + params[0]);
 
 
-                FileInputStream fileInputStream = new FileInputStream(filePathName);
+                FileInputStream fileInputStream = new FileInputStream(fileUploadPathName);
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 buffer = new byte[bufferSize];
@@ -148,6 +153,9 @@ public class UploadWebservice {
 
                 fileInputStream.close();
 
+                File fileToDelete = new File(fileUploadPathName);
+                fileToDelete.delete();
+
                 // Responses from the server (code and message)
                 int serverResponseCode = connection.getResponseCode();
                 String serverResponseMessage = connection.getResponseMessage();
@@ -162,29 +170,18 @@ public class UploadWebservice {
             return null;
         }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
+        private void copy(File src, File dst) throws IOException {
+            InputStream in = new FileInputStream(src);
+            OutputStream out = new FileOutputStream(dst);
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onCancelled(Void aVoid) {
-            super.onCancelled(aVoid);
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
         }
     }
 
