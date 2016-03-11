@@ -24,6 +24,7 @@ public class DatabaseManager {
     private Context context;
 
     private String TAG = "DatabaseManager";
+    private String SensorTAG = "SENSOR";
 
     private String accelorometerTableName = "";
 
@@ -61,10 +62,8 @@ public class DatabaseManager {
      */
     public void saveAccelerometerList(List<Accelerometer> list) {
 
-
         SQLiteDatabase db = openDatabase();
-        if (db != null)
-            Log.i(TAG, "Database file found");
+
         for (Accelerometer acc: list) {
 
             ContentValues values = new ContentValues();
@@ -73,10 +72,12 @@ public class DatabaseManager {
             values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Y_VALUE, acc.getY());
             values.put(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_Z_VALUE, acc.getZ());
 
+
             long newRowId;
             newRowId = db.insert("AccelerometerTable",
                     null,
                     values);
+
         }
         db.close();
 
@@ -107,16 +108,17 @@ public class DatabaseManager {
                 null,
                 null,
                 null,
-                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP,
+                AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP+" DESC",
                 limit
         );
 
         List<Accelerometer> result = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
+
+
+        while (cursor.moveToNext()) {
             Accelerometer acc = new Accelerometer();
 
-            float timestamp = cursor.getFloat(
+            long timestamp = cursor.getLong(
                     cursor.getColumnIndexOrThrow(AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP)
             );
             float x = cursor.getFloat(
@@ -133,9 +135,11 @@ public class DatabaseManager {
             acc.setY(y);
             acc.setZ(z);
             result.add(acc);
-            cursor.moveToNext();
+
         }
+        cursor.close();
         db.close();
+
         return result;
     }
 

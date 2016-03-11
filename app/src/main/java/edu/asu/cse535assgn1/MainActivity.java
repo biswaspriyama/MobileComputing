@@ -25,6 +25,7 @@ import edu.asu.cse535assgn1.webservices.UploadWebservice;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GraphView mGraphView;
     private GridLabelRenderer graphProperties;
-    private boolean mIsAnimating = false;
+    private boolean isTableMade = false;
 
     private TextView mPatientIDTextView;
     private TextView mPatientNameTextView;
@@ -52,21 +53,19 @@ public class MainActivity extends AppCompatActivity {
     private List<Float> mCurrentGraphValues2 = new ArrayList<>() ;
     private List<Accelerometer> accelerometerList = new ArrayList<Accelerometer>() ;
 
-
-    private float[] values1 = {10, 50, 60, 80, 60, 48, 00, 06, 20, 04, 02, 00, 06, 07, 8, 9, 00, 04, 02, 30, 05, 64, 89, 8, 00, 06, 05, 8, 00, 45, 00, 06, 04, 54, 03,};
-    private float[] values2 = {3, 4, 5, 6, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,};
-
-
-    LineGraphSeries<DataPoint> mSeries1;
+    LineGraphSeries<DataPoint> mSeriesX;
     LineGraphSeries<DataPoint> mSeries2;
+    LineGraphSeries<DataPoint> mSeries3;
 
 
     private UploadWebservice uploadService;
-    private DownloadWebservice downloaddService;
+    private DownloadWebservice downloadService;
+
+    String TAG = "SENSOR";
+
+    String tableName;
 
 
-
-    private float[] values = {10, 50, 60, 80, 60, 48, 0, 6, 20, 4, 2, 0, 6, 7, 8, 9, 0, 4, 2, 30, 5, 64, 89, 8, 0, 6, 5, 8, 0, 45, 0, 6, 4, 54, 3,};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
-        float[] values = {0};
-        String[] labels = {"10", "15", "20", "25", "30", "35", "40"};
-        String[] labels1 = {"1", "2", "3", "4", "5"};
 
         this.mGraphView = new GraphView(this);
         ViewGroup layout = (ViewGroup) findViewById(R.id.baseLayout);
@@ -90,19 +86,23 @@ public class MainActivity extends AppCompatActivity {
         this.mPatientAgeTextView = (TextView) findViewById(R.id.patientAge);
         this.mSexRadioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
-        mSeries1 = new LineGraphSeries<DataPoint>();
-        mSeries1.setColor(Color.BLUE);
-        mGraphView.addSeries(mSeries1);
+        mSeriesX = new LineGraphSeries<DataPoint>();
+        mSeriesX.setColor(Color.BLUE);
+        mGraphView.addSeries(mSeriesX);
         mSeries2 = new LineGraphSeries<DataPoint>();
-        mSeries1.setColor(Color.WHITE);
+        mSeries2.setColor(Color.WHITE);
         mGraphView.addSeries(mSeries2);
+        mSeries3 = new LineGraphSeries<DataPoint>();
+        mSeries3.setColor(Color.YELLOW);
+        mGraphView.addSeries(mSeries3);
 
-        graphProperties = new GridLabelRenderer(mGraphView);
-        mGraphView.getViewport().setXAxisBoundsManual(true);
-        mGraphView.getViewport().setMinX(0);
-        mGraphView.getViewport().setMaxX(10);
 
-        Intent sensorService = new Intent(MainActivity.this, SensorHandlerService.class);
+        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(mGraphView);
+        staticLabelsFormatter.setHorizontalLabels(new String[]{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+        mGraphView.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
+
+
+        Intent sensorService = new Intent(MainActivity.this, SensorHandlerService.class); // PSK: this could be an issue. Service should start at OnStartClick.
         startService(sensorService);
 
     }
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Save the current state of animation so that we can
         // restart on orientation change.
-        savedInstanceState.putBoolean("IsAnimating", this.mIsAnimating);
+        savedInstanceState.putBoolean("IsAnimating", this.isTableMade);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         // Check if the graph was already animating and call the animation function.
-        this.mIsAnimating = savedInstanceState.getBoolean("IsAnimating");
-        if (this.mIsAnimating) {
+        this.isTableMade = savedInstanceState.getBoolean("IsAnimating");
+        if (this.isTableMade) {
             startAnimation();
         }
     }
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(keyview.getWindowToken(), 0);
         }
 
-        if (mIsAnimating == false) {
+        if (isTableMade == false) {
 
             String id = this.mPatientIDTextView.getText().toString();
             String name = this.mPatientNameTextView.getText().toString();
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 if (isMale) {
                     sexString = "Male";
                 }
-                String tableName = name + "_" + id + "_" + age + "_" + sexString;
+                tableName = name + "_" + id + "_" + age + "_" + sexString;
                 DatabaseManager.sharedInstance().createTable(tableName, this);
                 startAnimation();
                 showMessage();
@@ -184,15 +184,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+        else{
+            update();
+        }
     }
 
     public void stopButtonClicked(View view) {
 
-        this.mIsAnimating = false;
+        //this.isTableMade = false;
         mIndex = 0;
         mGraphIndex = 0;
-        mSeries1.resetData(new DataPoint[]{new DataPoint(0, 0)});
+        mSeriesX.resetData(new DataPoint[]{new DataPoint(0, 0)});
         mSeries2.resetData(new DataPoint[]{new DataPoint(0, 0)});
+        mSeries3.resetData(new DataPoint[]{new DataPoint(0, 0)});
     }
 
     /**
@@ -243,32 +247,49 @@ public class MainActivity extends AppCompatActivity {
     private Runnable mUpdateGraph = new Runnable() {
         public void run() {
             update();
-            if (mIsAnimating) {
-                mHandler.postDelayed(mUpdateGraph, 120);
+            if (isTableMade) {
+                mHandler.postDelayed(mUpdateGraph, 10000);
             }
         }
     };
 
     private void startAnimation() {
-        this.mIsAnimating = true;
+        this.isTableMade = true;
         this.mHandler.postDelayed(mUpdateGraph, 10);
     }
 
     private void update() {
 
-       if (this.mIsAnimating == true) {
+       if (this.isTableMade == true) {
 
+           int i;
+           accelerometerList.clear();
+           accelerometerList.addAll(0, DatabaseManager.sharedInstance().fetchRecentAccelerometerData(10));
 
-           if (this.mIndex == this.values1.length) {
-               this.mIndex = 0;
+           DataPoint[] toAdd_X = new DataPoint[accelerometerList.size()];
+           DataPoint[] toAdd_Y = new DataPoint[accelerometerList.size()];
+           DataPoint[] toAdd_Z = new DataPoint[accelerometerList.size()];
+           Log.i("MainActivity", "Showing values count "+accelerometerList.size());
+
+           for(i=0; i< accelerometerList.size(); i++){
+
+               toAdd_X[i] = new DataPoint(i,accelerometerList.get(i).getX());
+               toAdd_Y[i] = new DataPoint(i,accelerometerList.get(i).getY());
+               toAdd_Z[i] = new DataPoint(i,accelerometerList.get(i).getZ());
+
            }
-           mSeries1.appendData(new DataPoint(mGraphIndex, this.values1[this.mIndex]), true, 10);
-           mSeries2.appendData(new DataPoint(mGraphIndex, this.values2[this.mIndex]), true, 10);
+           if(accelerometerList.size() > 0) {
 
-           mGraphIndex++;
-           this.mIndex ++;
+               mSeriesX.resetData(toAdd_X);
+               mSeries2.resetData(toAdd_Y);
+               mSeries3.resetData(toAdd_Z);
+
+           }
+           //mGraphIndex+=i;
+           Log.v(TAG, "Graph Index " + mGraphIndex);
        }
-        this.mGraphView.invalidate();
+        Log.v(TAG, "Update Called. Size: " + accelerometerList.size());
+        //this.mGraphView.invalidate();
     }
 
 
