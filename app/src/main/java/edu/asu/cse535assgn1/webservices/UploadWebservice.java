@@ -36,7 +36,7 @@ public class UploadWebservice {
     public void startUpload() {
         Log.i(TAG, "Start db upload");
         UploadTask task = new UploadTask();
-        task.execute(DatabaseManager.sharedInstance().databasePath());
+        task.execute(DatabaseManager.sharedInstance().databaseAbsolutePath());
     }
 
     public boolean isRunning()  {
@@ -94,6 +94,8 @@ public class UploadWebservice {
 
             try {
                 URL url = new URL("https://impact.asu.edu/Appenstance/UploadToServerGPS.php");
+                String filePathName = params[0];
+                String fileName = DatabaseManager.sharedInstance().databaseName();
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.setUseCaches(false);
                 connection.setDoOutput(true);
@@ -103,17 +105,21 @@ public class UploadWebservice {
                 connection.setRequestProperty("Cache-Control", "no-cache");
                 connection.setRequestProperty("Content-Type", "multipart/form-data");
 
+                connection.setRequestProperty("ENCTYPE", "multipart/form-data");
+
+                connection.setRequestProperty("uploaded_file", fileName);
 
 
                 output = new DataOutputStream(connection.getOutputStream());
 
                 output.writeBytes(twoHyphens + boundary + lineEnd);
                 output.writeBytes("Content-Disposition: form-data; name=\"" +
-                        "JithinTest" + "\";filename=\"" +
-                        "JithinTest" + "\"" + lineEnd);
+                        fileName + "\";filename=\"" +
+                        fileName + "\"" + lineEnd);
                 output.writeBytes(lineEnd);
 
                 Log.i(TAG, "DB file " + params[0]);
+
                 FileInputStream fileInputStream = new FileInputStream(new File(params[0]));
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);

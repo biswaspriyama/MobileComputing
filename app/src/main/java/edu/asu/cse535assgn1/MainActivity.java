@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void uploadButtonClicked(View view) {
-        uploadService = new UploadWebservice(DatabaseManager.sharedInstance().databasePath());
+        uploadService = new UploadWebservice(DatabaseManager.sharedInstance().databaseAbsolutePath());
         uploadService.startUpload();
     }
 

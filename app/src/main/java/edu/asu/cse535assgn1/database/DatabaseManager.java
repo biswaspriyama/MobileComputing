@@ -144,10 +144,16 @@ public class DatabaseManager {
      *
      * @return Absolute path of database location.
      */
-    public String databasePath() {
+    public String databaseAbsolutePath() {
         File file = context.getDatabasePath(accelorometerTableName);
         Log.i(TAG, "DB path = " + file.getAbsolutePath());
         return file.getAbsolutePath();
+    }
+
+    public String databaseName() {
+        File file = context.getDatabasePath(accelorometerTableName);
+        Log.i(TAG, "DB file name = " + file.getAbsolutePath());
+        return file.getName();
     }
 
     public void createTable(String tableName, Context context) {
