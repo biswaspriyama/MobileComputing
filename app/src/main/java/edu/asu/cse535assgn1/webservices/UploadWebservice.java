@@ -1,11 +1,14 @@
 package edu.asu.cse535assgn1.webservices;
 
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -99,28 +102,26 @@ public class UploadWebservice {
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.setUseCaches(false);
                 connection.setDoOutput(true);
+                connection.setDoInput(true);
 
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Connection", "Keep-Alive");
                 connection.setRequestProperty("Cache-Control", "no-cache");
-                connection.setRequestProperty("Content-Type", "multipart/form-data");
-
                 connection.setRequestProperty("ENCTYPE", "multipart/form-data");
-
+                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
                 connection.setRequestProperty("uploaded_file", fileName);
 
 
                 output = new DataOutputStream(connection.getOutputStream());
 
                 output.writeBytes(twoHyphens + boundary + lineEnd);
-                output.writeBytes("Content-Disposition: form-data; name=\"" +
-                        fileName + "\";filename=\"" +
-                        fileName + "\"" + lineEnd);
+                output.writeBytes("Content-Disposition: form-data; name='uploaded_file';fileName='" +fileName+"'" + lineEnd);
                 output.writeBytes(lineEnd);
 
                 Log.i(TAG, "DB file " + params[0]);
 
-                FileInputStream fileInputStream = new FileInputStream(new File(params[0]));
+
+                FileInputStream fileInputStream = new FileInputStream(filePathName);
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 buffer = new byte[bufferSize];
