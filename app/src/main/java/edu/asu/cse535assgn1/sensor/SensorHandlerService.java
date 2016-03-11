@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -21,8 +22,9 @@ import java.util.List;
 import edu.asu.cse535assgn1.database.DatabaseManager;
 import edu.asu.cse535assgn1.models.Accelerometer;
 
-public class SensorHandlerService extends Service implements SensorEventListener {
 
+public class SensorHandlerService extends Service implements SensorEventListener {
+    String TAG = "SENSOR";
 
     private SensorManager accelManager;
     private Sensor senseAccel;
@@ -34,6 +36,7 @@ public class SensorHandlerService extends Service implements SensorEventListener
 
     @Override
     public void onCreate(){
+        Log.i(TAG, "SENSOR CREATED");
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         accelManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senseAccel = accelManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -103,12 +106,13 @@ public class SensorHandlerService extends Service implements SensorEventListener
             accelerometerList.add(acc);
 
 
-            if(index >= 127){
+            if(index >= 10){
                 index = 0;
                 accelManager.unregisterListener(this);
                 insertData(accelerometerList);
                 accelManager.registerListener(this, senseAccel, SensorManager.SENSOR_DELAY_NORMAL);
             }
+            //Log.i(TAG, "SENSOR VALUE CHANGED " + accelerometerList.size());
         }
     }
 

@@ -24,6 +24,7 @@ public class DatabaseManager {
     private Context context;
 
     private String TAG = "DatabaseManager";
+    private String SensorTAG = "SENSOR";
 
     private String accelorometerTableName = "";
 
@@ -61,7 +62,6 @@ public class DatabaseManager {
      */
     public void saveAccelerometerList(List<Accelerometer> list) {
 
-
         SQLiteDatabase db = openDatabase();
         if (db != null)
             Log.i(TAG, "Database file found");
@@ -77,6 +77,7 @@ public class DatabaseManager {
             newRowId = db.insert("AccelerometerTable",
                     null,
                     values);
+            Log.i("ROWID","Row Id: " + newRowId);
         }
         db.close();
 
@@ -108,12 +109,24 @@ public class DatabaseManager {
                 null,
                 null,
                 AccelerometerContract.AccelerometerEntry.COLUMN_NAME_TIME_STAMP,
-                limit
+                null
         );
 
         List<Accelerometer> result = new ArrayList<>();
+
         cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
+        Log.i("Pos", "------\n");
+        Log.i("Pos", "Pos: " + cursor.getPosition());
+        Log.i("Pos", "Rows: " + cursor.getCount());
+        cursor.moveToLast();
+        Log.i("Pos", "Pos: " + cursor.getPosition());
+        Log.i("Pos", "Rows: " + cursor.getCount());
+        cursor.move(-9);
+        Log.i("Pos", "Pos: " + cursor.getPosition());
+        Log.i("Pos", "Rows: " + cursor.getCount());
+
+        //cursor.moveToFirst();
+        while (!cursor.isAfterLast() && cursor.getPosition()!= -1) {
             Accelerometer acc = new Accelerometer();
 
             float timestamp = cursor.getFloat(
@@ -136,6 +149,7 @@ public class DatabaseManager {
             cursor.moveToNext();
         }
         db.close();
+        Log.i(SensorTAG, "ACCELEROMETER DATA FETCHED. Size: " + result.size());
         return result;
     }
 
