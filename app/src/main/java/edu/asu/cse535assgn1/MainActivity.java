@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements DownloadWebservic
     }
 
     public void stopButtonClicked(View view) {
-
+        accelerometerList.clear();
         this.isTableMade = false;
         mIndex = 0;
         mGraphIndex = 0;
@@ -262,35 +262,35 @@ public class MainActivity extends AppCompatActivity implements DownloadWebservic
     }
 
     private void update() {
-
+        int i;
        if (this.isTableMade == true) {
-
-           int i;
+           Log.i("checkIf", "isTableMade");
            accelerometerList.clear();
            accelerometerList.addAll(0, DatabaseManager.sharedInstance().fetchRecentAccelerometerData(10));
-
-           DataPoint[] toAdd_X = new DataPoint[accelerometerList.size()];
-           DataPoint[] toAdd_Y = new DataPoint[accelerometerList.size()];
-           DataPoint[] toAdd_Z = new DataPoint[accelerometerList.size()];
-           Log.i("MainActivity", "Showing values count "+accelerometerList.size());
-
-           for(i=0; i< accelerometerList.size(); i++){
-
-               toAdd_X[i] = new DataPoint(i,accelerometerList.get(i).getX());
-               toAdd_Y[i] = new DataPoint(i,accelerometerList.get(i).getY());
-               toAdd_Z[i] = new DataPoint(i,accelerometerList.get(i).getZ());
-
-           }
-           if(accelerometerList.size() > 0) {
-
-               mSeriesX.resetData(toAdd_X);
-               mSeries2.resetData(toAdd_Y);
-               mSeries3.resetData(toAdd_Z);
-
-           }
-           //mGraphIndex+=i;
-           Log.v(TAG, "Graph Index " + mGraphIndex);
+       } else {
+           Log.i("checkIf", "isTableMade false");
        }
+       DataPoint[] toAdd_X = new DataPoint[accelerometerList.size()];
+       DataPoint[] toAdd_Y = new DataPoint[accelerometerList.size()];
+       DataPoint[] toAdd_Z = new DataPoint[accelerometerList.size()];
+       Log.i("MainActivity", "Showing values count "+accelerometerList.size());
+
+       for(i=0; i< accelerometerList.size(); i++){
+
+           toAdd_X[i] = new DataPoint(i,accelerometerList.get(i).getX());
+           toAdd_Y[i] = new DataPoint(i,accelerometerList.get(i).getY());
+           toAdd_Z[i] = new DataPoint(i,accelerometerList.get(i).getZ());
+
+       }
+       if(accelerometerList.size() > 0) {
+
+           mSeriesX.resetData(toAdd_X);
+           mSeries2.resetData(toAdd_Y);
+           mSeries3.resetData(toAdd_Z);
+
+       }
+       //mGraphIndex+=i;
+       Log.v(TAG, "Graph Index " + mGraphIndex);
         Log.v(TAG, "Update Called. Size: " + accelerometerList.size());
         //this.mGraphView.invalidate();
     }
@@ -299,7 +299,10 @@ public class MainActivity extends AppCompatActivity implements DownloadWebservic
         Log.i(TAG, "Download completed - " + filePath);
         List<Accelerometer> acc = DatabaseManager.sharedInstance().fetchRecentAccelerometerData(filePath, 10);
         Log.i(TAG, "Download completed size - " + acc.size());
-
+        this.isTableMade = false;
+        accelerometerList.clear();
+        accelerometerList.addAll(0, acc);
+        update();
         Toast.makeText(this,"Downloaded the db file, showing latest 10...", Toast.LENGTH_LONG).show();
     }
 
